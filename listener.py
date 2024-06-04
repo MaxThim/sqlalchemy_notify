@@ -12,8 +12,18 @@ async def listen_notifications():
     print("Waiting for notifications on channel 'object_changes'...")
     while True:
         async for notification in connection.notifies():
+            action, object_id = notification.payload.split()
             print(f"Received notification: {notification.payload}")
-            await cursor.execute("SELECT * FROM simple_object WHERE id = ;")
+            await cursor.execute(f"SELECT name FROM simple_object WHERE id = {object_id};")
+            result = await cursor.fetchone()
+            if result:
+                name = result[0]
+                if action == "CREATE":
+                    print(f"Created {name}")
+                elif action == "UPDATE":
+                    print(f"Updated {name}")
+            else:
+                print(f"No object found with id {object_id}") 
 
 
 if __name__ == "__main__":
